@@ -63,7 +63,7 @@
     - [Support](#support)
 
 # Compute
-## EC2
+### EC2
 https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/concepts.html
 
 Purchase Options
@@ -111,7 +111,7 @@ Instance Types
     - Compute, Memory, Storage optimized
     - Accelerated Computing
 
-## ELB
+### ELB
 Elastic Load Balancer
 - Distributes traffic across multiple targets
 - Route users to different locations
@@ -148,7 +148,7 @@ Elastic Load Balancer
 Health checks - to monitor healthy nodes before routing
 	- Out of service vs In service
 
-## Autoscaling Group
+### Autoscaling Group
 - Scale in or out based on CloudWatch alarms - built-in metrics and custom metrics
 - Free - just pay for resources being launched
 - Will restart terminated instances
@@ -168,10 +168,10 @@ Health checks - to monitor healthy nodes before routing
 - Application Load Balancer - communicates with Auto-Scaling Group to know to route traffic to healthy nodes
 
 
-## ECR
+### ECR
 https://docs.aws.amazon.com/AmazonECR/latest/userguide/what-is-ecr.html
 
-## ECS
+### ECS
 https://docs.aws.amazon.com/AmazonECS/latest/developerguide/Welcome.html
 
 Containerized apps - Docker - Container orchestration service
@@ -180,15 +180,15 @@ Manages a fleet of Docker containers
 
 Tasks are how we execute a service
 
-## Fargate
+### Fargate
 enables containerized apps without managing servers
 
-## EKS
+### EKS
 Amazon ECS for Kubernetes 
 
 Manages k8s cluster
 
-## EBS
+### EBS
 Types
 - Filesystem for EC2 instances
 - General purpose (SSD) - default, less expensive
@@ -219,7 +219,7 @@ Can not attach a drive across Azs
 
 Disk IO is high => increase volume size (for gp2)
 
-## Lambda
+### Lambda
 Lambda
 - Run code without provisioning any infrastructure
 - Only charged for usage execution time
@@ -244,7 +244,7 @@ AWS Step Functions
 - JSON State Machine
 - Lambda
 
-## Elastic Beanstalk
+### Elastic Beanstalk
 Leverages other AWS services
 
 Only pay for the other AWS services you use
@@ -255,7 +255,7 @@ Handles provisioning, load balancing, scaling, and monitoring
 
 # Storage
 
-##S3
+### S3
 https://docs.aws.amazon.com/AmazonS3/latest/dev/Welcome.html
 
 | | Availability | Availability SLA | Durability |
@@ -297,7 +297,7 @@ S3 Glacier
 - Expedited retrieval - for a cost can get it back in 10 mins
 - Bulk retrieval
 
-## EFS
+### EFS
 - Managed NFS
 - Works with EC2 in Multi-AZ
 - NFSv4.1 protocol
@@ -307,7 +307,7 @@ S3 Glacier
 - Linux AMI, Not Windows
 - EFS file sync to sync from on-premise file system to EFS
 
-## Storage Gateway
+### Storage Gateway
 - File gateway
     - NFS type mount backed by S3
     - NFS or SMB
@@ -331,7 +331,7 @@ Exam tips:
 
 # Database
 
-## RDS
+### RDS
 - Fully managed service for relational databases
 - Multi-AZ - for Disaster Recovery
     - SYNC syncronous replication to standby in other region
@@ -376,7 +376,7 @@ Exam tips:
 
 - No SSH
 
-## Amazon Aurora
+### Amazon Aurora
 
 - Proprietary
     - MySQL (5x performance)
@@ -411,7 +411,7 @@ Aurora Serverless
 - Measured in capacity units
 
 
-## DynamoDB
+### DynamoDB
 
 - Low latency at any scale (trillions of requests/day, millions/second)
 - Key/Value store
@@ -451,7 +451,7 @@ Global tables
 Local DynamoDD available for dev
 
 
-## ElastiCache
+### ElastiCache
 In-memory database - microseconds to milliseconds (10x faster)
 
 Types:
@@ -480,7 +480,7 @@ Memcached still available but offers fewer features than Redis
 
 Use-case: Database caching, session storage
 
-## Neptune
+### Neptune
 Graph database
 
 Use when relationship is more important
@@ -494,70 +494,61 @@ Use when relationship is more important
 
 # Application Integration
 
-## SNS
+### SNS
 https://docs.aws.amazon.com/sns/latest/dg/welcome.html
 
-Pub / sub messaging service
-
-Topics - Organized according to topics
-
-Consumers subscribe to topics
-
-Create decoupled apps
-
-Integrates across multiple AWS services
-
-Producer sends message to a single SNS topic
-
-Subscribers get all the messages (new feature to filter messages - not on exam)
-
-10,000,000 subscriptions per topic
-
-100,000 topics limit
-
-Integrates with lots of Amazon products
-
-Protocols
-- Http
-- Https
-- Email
-- Email Json
-- Amazon SQS
-- AWS Lambda
-
+- Pub / Sub messaging service
+- Topics - Producer sends message to a single SNS topic
+- Consumers subscribe to topics
+- Subscribers get all the messages (new feature to filter messages - not on exam)
+- Create decoupled apps
+- Integrates across multiple AWS services
+- 10,000,000 subscriptions per topic
+- 100,000 topics limit
+- Integrates with lots of Amazon products
+-Protocols
+    - Http
+    - Https
+    - Email
+    - Email Json
+    - Amazon SQS
+    - AWS Lambda
 
 ### SQS
 https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html
 
-Message queue service
+- Message queue service
+- Decoupled / fault tolerant apps
+- 256 KB payload
+- Store messages for up to 14 days
+- Visibility Timeout
+    - Message is invisible to other consumers for a defined period
+    - ChangeMessageVisibility API can be used to change visibility while processing a message
+    - Maximum is 12 hours
+- DeleteMessage - client will delete message
+- Dead letter queue - after certain retries, message will go to dead letter queue
+- Long Polling - can be configured from 1 second to 20 seconds (preferred)
+    - Can save money because of fewer API calls - increase efficiency
+- FIFO Queue
+    - Offers deduplication by id
+    - Name must end with .fifo
+    - Reduced throughput (significantly reduced)
 
-Decoupled / fault tolerant apps
-
-256 KB payload
-
-Store messages for up to 14 days
-
-Visibility Timeout
-- Message is invisible to other consumers for a defined period
-- ChangeMessageVisibility API can be used to change visibility while processing a message
-
-DeleteMessage - client will delete message
-
-Dead letter queue - after certain retries, message will go to dead letter queue
-
-Long Polling - can be configured from 1 second to 20 seconds (preferred)
-- Can save money because fewer calls - increase efficiency
-	
-FIFO Queue
-- Offers deduplication by id
-- Name must end with .fifo
-- Reduced throughput (significantly reduced)
-
-
+### SWF
+Simple Workflow Service
+- Coordinates steps in an application (code, web service calls, human actions, etc.)
+- Used by Amazon in warehouse
+- Workflow executions can last up to 1 year (14 days for SQS)
+- Task-oriented API
+- A task is assigned only once and never duplicated
+- Keeps track of all the tasks and events in an application
+- Deciders - control the flow of activity tasks
+- Workers - carry out the activity tasks
+- Domain - collection of related tasks
 
 # Networking and Content Delivery
 
-# VPC
+### VPC
 
 A logically isolated section of the AWS Cloud where you can launch AWS resources in a virtual network that you define
  
@@ -614,7 +605,7 @@ Security groups - firewall-like controls for resources within the VPC
 Flow logs - captures the information around traffic within the VPC
 
 
-## CloudFront
+### CloudFront
 Supports static and dynamic content
 
 Utilizes AWS edge locations
@@ -635,7 +626,7 @@ GEO Restriction - determined via 3rd party GEO-IP database
 - Blacklist countries
 - Use-case: copyright laws
 
-## Route53
+### Route53
 DNS service (connect domain name to ip address / servers)
 
 Highly available, can resolve to a different region if needed
@@ -657,31 +648,27 @@ CNAME - points a URL to any other URL - only for non-root domain
 Alias - points a URL to an AWS Resource - works for root domain and non root domain
 - A custom AWS extension to DNS
 
-## Amazon API Gateway
+### Amazon API Gateway
 - Fully managed API management service
 - Directly integrates with multiple AWS services
 - Provides monitoring and metrics on API calls
 - Supports VPC and on-prem private apps
-  
-Can do authorization
-API keys can be associated with a client / user
-    - Can track consumption
-
-Can sit in front of microservices with disparate backends
-
-Versioning
-
-Handle different environments
-
-Handle Security (Authz Authn)
-
-Create API keys
-
-Throttle requests
-
-Transform requests / responses
+- Track clien consumption of API
+- Can sit in front of microservices with disparate backends
+- Versioning - maintain multiple versions
+- Environments - dev, test, stage, prod, etc.
+- Create API keys
+- __Throttle requests to prevent attacks / abuse__
+- Transform requests / responses
+- Can use custom domain
+- Supports AWS Certificate Manager (free)
+- __API Caching - TTL__ to improve performance
+- Scales automatically
+- __Need to enable CORS on API Gateway__
 
 Security:
+- Authz and Authn
+    - API keys can be associated with a client / user
 - IAM permissions - client passes Sig v4 header
 - Lambda Authorizer (formerly Custom Authorizers)
     - Validate token passed in header
@@ -693,10 +680,11 @@ Security:
     - API gateway verifies identity
     - Only helps with authentication, not authorization
  
-## Direct Connect
-Establish a private, dedicated network connection from your premises to AWS - IPSECTunnel
+### Direct Connect
+Establish a private, dedicated network connection from your private data center to AWS
+- IPSECTunnel
 
-## Bastion Hosts
+### Bastion Hosts
 jump box
 
 Put one in your public subnet to authenticate and access your other servers
@@ -705,7 +693,8 @@ Make sure it only has port 22 traffic from your own IP you need, not from the se
 
 
 # Analytics
-## Athena
+
+### Athena
 https://docs.aws.amazon.com/athena/latest/ug/what-is.html
 Fast, cost-effective, interactive query service that makes it easy to analyze petabytes of data in S3 with no data warehouses or clusters to manage.
 
@@ -719,26 +708,35 @@ CSV, JSON, ORC, AVRO, and Parquet
 
 Exam tip: Use Athena to analyze data directly on S3
 
-## EMR
+### EMR
 Big data analytics for Spark, Hadoop, etc.
 
-## Kinesis
+### Kinesis
 Managed alternative to Apache Kafka
 
 Streaming tool
 
-Logs, metrics, IoT, click streams
+Logs, metrics, IoT, click streams, stock prices, gaming data
 
-Data is replicated to 3 azs
-
-Data goes to shards, shards can scale
+Data is replicated to 3 AZs
 
 Choose a partition key that is high distributed (prevent hot partition)
 
 Consumer
 - KCL - Kinesis Client Library - uses DynamoDB to track workers
 
-## Glue
+Service Types:
+- Kinesis Streams
+    - Data is stored in Shards, you can add more Shards to scale
+    - Stores data for 24 hours, up to 7 days
+    - Consumers can store data in DynamoDB, RDS, S3, etc.
+- Kinesis Firehose
+    - Data is analyzed as it streams in (Lambda)
+    - Data is not stored but can be output to S3, ElasticSearch, etc.
+- Kinesis Analytics
+    - Can analyze the data on the fly
+
+### Glue
 Fully-managed ETL
 
 Prep data for analytics
@@ -752,7 +750,7 @@ Glue Data Catalog: metadata of the source tables
 
 # Management and Governance
 
-## CloudWatch
+### CloudWatch
 Monitoring and management service
 
 Logs, metrics, events for most AWS services
@@ -764,7 +762,7 @@ Provides visualization capabilities for metrics (response time over a week, etc.
 Custom dashboards based on metrics
 
 
-## CloudFormation
+### CloudFormation
 Infrastructure as code
 
 Managed service for provisioning infrastructure based on templates
@@ -781,11 +779,11 @@ Provides drift detection to find changes
 
 Rollback triggers
 
-## CloudTrail
+### CloudTrail
 
 Enables logging of all actions taken within your AWS account
 
-## OpsWorks
+### OpsWorks
 Managed Chef and Puppet
 - Help managing configuration as code
 - Consistent deployments
@@ -794,7 +792,7 @@ Managed Chef and Puppet
 
 # Security, Identity, & Compliance
 
-## IAM
+### IAM
 Identity & Access Management
 
 Service that controls access to resources
@@ -829,16 +827,24 @@ Best Practices
 - Least Privilege Access - only grant the access that is required
 
 
-## Cognito
-Use case is a huge amount of users (50 Million) you don't want to manage in IAM
+### Cognito
+- Web Identity Federation (Amazon, Facebook, Google)
+- Use case is a huge amount of users (50 Million) you don't want to manage in IAM
+- Can get temporary AWS credentials, mapped to an IAM role, to use AWS services
+- JWT - JSON Web Token
+- Sign-up and Sign-in to apps
+- Identity Broker
+- Recommended for all mobile applications
+- User Pools - Registration, Users can sign in directly, username/password are stored in Cognito
+- Identity Pools - Authorizes access to your AWS resources
 
-# Secrets Manager
+### Secrets Manager
 A step beyond KMS
 
-## Certificate Manager
+### Certificate Manager
 Integrated with services like Load Balancers
 
-## KMS
+### KMS
 Key Management Service
 
 Generate and store keys for encryption
@@ -846,21 +852,17 @@ Generate and store keys for encryption
 Can only encrypt up to 4KB of data per call
 - If need more than that use ENVELOPE Encyprtion
 
-# CloudHSM
-physical hardware device, encryption, for complex cryptographic needs
+### CloudHSM
+Physical hardware device, encryption, for complex cryptographic needs
 
-# WAF & Shield
-AWS Shield - provides detection and mitigation of DDoS attacks
-
+### WAF & Shield
 AWS WAF - protects your app from common exploits (SQL injection, etc.)
 
-
-
-Can store credentials
+AWS Shield - provides detection and mitigation of DDoS attacks
 
 
 # Migration and Transfer
-## Snowball
+### Snowball
 AWS Snowball - service to physically migrate petabytes of data
 AWS Snowmobile - service to physically migrate exabyte scale data onto AWS
 
@@ -874,9 +876,9 @@ Encryption
     - ElastiCache
     - EFS
 
-## Shared Responsibility Model
+### Shared Responsibility Model
 
-## Well-Architected Framework
+### Well-Architected Framework
 https://aws.amazon.com/architecture/well-architected/
 
 Five pillars of the Well-Architected Framework
@@ -887,7 +889,7 @@ Five pillars of the Well-Architected Framework
 4. Performance Efficiency
 5. Cost Optimization
 
-## Support
+### Support
 - AWS Basic Support
     - Access to Trusted Advisor - gives insight and suggestions to optimize costs, etc.
     - 24x7 access to support, whitepapers, forumns, etc.
