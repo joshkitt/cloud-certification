@@ -5,7 +5,7 @@
 - [Compute](#compute)
     - [EC2](#ec2)   
     - [ELB](#elb)
-    - [Autoscaling Gropus](#autoscaling-groups)
+    - [Auto Scaling Group](#auto-scaling-group)
     - [ECR](#ecr)
     - [ECS](#ecs)
     - [Fargate](#fargate)
@@ -125,9 +125,11 @@ Elastic Load Balancer
 - __Access Logs can be enabled to capture detailed inforamtion about requests (disabled by default)__
 - HTTPS listener
     - __clients can use Server Name Indication (SNI) to specify the hostname they reach__
-
 - Types
     - ALB - Application Load Balancer
+        - HTTP Layer 7
+        - Called by DNS name
+        - Hostname, path, redirects, dynamic host port mapping for ECS
         - Good fit for Docker 
         - Performs health checks to route to healthy nodes
         - Stickiness cookie to send traffic back to same server for HTTP (1 sec. to 7 days)
@@ -135,27 +137,33 @@ Elastic Load Balancer
         - Passes along client info in X-Forwarded-For, etc. header
         - Uses "Target group" for routing target
         - __Weighted Target Groups routing__
-        
     - NLB - Network Load Balancer
-        - TCP (layer 4) traffic
+        - TCP Layer 4
+        - Static IP per AZ
+        - Public facing - must attach Elastic IP
+        - Private facing - gets random private IP
         - Higher performance than ALB
         - Low-latency
         - NLB does not use X-Forwarded-For header, you can see source IP
-        - Static IP per AZ
     - Classic Load Balancer 
         - original AWS service
         - For older configurations
         - cheaper
         - not as intelligent
+- Security groups
+    Load balancer security group can be allowed in to the EC2 instance security group
+-  SSL / TLS Certificates
+    - __AWS Certificate Manager - used to manage certificates__
+    - Can use many certificates for different domains
+    - __Server Name Indication (SNI) - clients can specify the hostname__
 
 Health checks - to monitor healthy nodes before routing
 	- Out of service vs In service
 
-### Autoscaling Group
+### Auto Scaling Group
 - Scale in or out based on CloudWatch alarms - built-in metrics and custom metrics
 - Free - just pay for resources being launched
-- Will restart terminated instances
-- Will terminate and restart unhealthy instances
+- Will terminate unhealthy instances and recreate them
 - Termination policy default (scale in)
     1. Will choose the AZ with the most instances first
     2. Will terminate the oldest launch configuration first
@@ -169,7 +177,7 @@ Health checks - to monitor healthy nodes before routing
 - Exists within 1 ore more AZs within a single region
 - Can change cooldown and threshold settings to optimize the amount of scaling and minimize thrashing
 - Application Load Balancer - communicates with Auto-Scaling Group to know to route traffic to healthy nodes
-
+- Free (pay for underlying resources)
 
 ### ECR
 https://docs.aws.amazon.com/AmazonECR/latest/userguide/what-is-ecr.html
