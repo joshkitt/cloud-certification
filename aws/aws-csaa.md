@@ -122,6 +122,7 @@ Elastic Load Balancer
 - Like an F5
 - Intelligent routing
 - SSL termination
+- __Access Logs can be enabled to capture detailed inforamtion about requests (disabled by default)__
 - HTTPS listener
     - __clients can use Server Name Indication (SNI) to specify the hostname they reach__
 
@@ -133,6 +134,8 @@ Elastic Load Balancer
             - Can cause imbalance across servers
         - Passes along client info in X-Forwarded-For, etc. header
         - Uses "Target group" for routing target
+        - __Weighted Target Groups routing__
+        
     - NLB - Network Load Balancer
         - TCP (layer 4) traffic
         - Higher performance than ALB
@@ -154,11 +157,11 @@ Health checks - to monitor healthy nodes before routing
 - Will restart terminated instances
 - Will terminate and restart unhealthy instances
 - Termination policy default (scale in)
-    - Will terminate in the AZ with the most instances first
-    - Will terminate the oldest launch configuration first
+    1. Will choose the AZ with the most instances first
+    2. Will terminate the oldest launch configuration first
+    3. __Will terminate the instance that is closest to the next billing hour__ 
 - Scaling cooldown
     - If scaling up and down too much, modify the cooldown timer and CloudWatch alarm period that triggers the scale-in
-
 - Launch configuration defines instance template for the group
 - Defines min, max, and desired number of instances
 - Performs health checks on each instance
@@ -191,11 +194,15 @@ Manages k8s cluster
 ### EBS
 Types
 - Filesystem for EC2 instances
-- General purpose (SSD) - default, less expensive
-- Provisioned IOPS (SSD) - pay more for higher level of performance - most expensive
-- Throughput optimized HDD - chatty database use-case, cheaper
-- Cold HDD - cheap
-- Magnetic
+    - __SSD can be used for bootable volume (HDD CAN NOT)__
+    - __SSD is good for small, random I/O__
+    - __HDD is good for large, sequential I/O__
+- Types 
+    - General purpose (SSD) - default, less expensive
+    - Provisioned IOPS (SSD) - pay more for higher level of performance - most expensive
+    - Throughput optimized HDD - chatty database use-case, cheaper
+    - Cold HDD - cheap
+    - Magnetic
 
 Snapshots - point in time snapshot, gets stored in S3 behind the scenes (same durability)
     Run snapshots during downtime, slow time
@@ -258,15 +265,16 @@ Handles provisioning, load balancing, scaling, and monitoring
 ### S3
 https://docs.aws.amazon.com/AmazonS3/latest/dev/Welcome.html
 
-| | Availability | Availability SLA | Durability |
-| --- | --- | --- | --- |
+| | Availability | Availability SLA | Durability | __Limitation__ | Retrieval |
+| --- | --- | --- | --- | --- | --- |
 | S3 Standard             | 99.99% | 99.9% | 99.999999999% (11 9’s) |
 | S3 Intelligent-Tiering* | __99.9%__  | __99%__  | 99.999999999% (11 9’s) |
-| S3 Standard-IA          | __99.9%__  | __99%__  | 99.999999999% (11 9’s) |
-| S3 One Zone-IA†         | __99.5%__  | __99%__  | 99.999999999% (11 9’s) |
-| S3 Glacier              | 99.99% | 99.9% | 99.999999999% (11 9’s) |
+| S3 Standard-IA          | __99.9%__  | __99%__  | 99.999999999% (11 9’s) | __30 days__ |
+| S3 One Zone-IA†         | __99.5%__  | __99%__  | 99.999999999% (11 9’s) | __30 days__ |
+| S3 Glacier              | 99.99% | 99.9% | 99.999999999% (11 9’s) | __Can not specify GLACIER at time of creation__ | Standard: 3 - 5 hours, Expedited: 1 - 5 mins, Bulk: 12 hours |
 | S3 Glacier Deep Archive | 99.99% | 99.9% | 99.999999999% (11 9’s) |
-
+- Lifecycle
+    - __Objects must be stored at least 30 days before you can transition them to to the IA classes__
 - Versioning
    - Set at the bucket level
    - Any file that is not versioned prior to enabling versioning will be version "null"
@@ -375,6 +383,7 @@ Exam tips:
   -   Oracle or SQL Server only - on top of KMS - may affect performance		
 
 - No SSH
+- __Manage DB engine configuration through Parameter Groups__
 
 ### Amazon Aurora
 
@@ -521,6 +530,7 @@ https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welco
 - Decoupled / fault tolerant apps
 - 256 KB payload
 - Store messages for up to 14 days
+    - __Default is 4 days__
 - Visibility Timeout
     - Message is invisible to other consumers for a defined period
     - ChangeMessageVisibility API can be used to change visibility while processing a message
@@ -529,6 +539,7 @@ https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welco
 - Dead letter queue - after certain retries, message will go to dead letter queue
 - Long Polling - can be configured from 1 second to 20 seconds (preferred)
     - Can save money because of fewer API calls - increase efficiency
+    - __Set ReceiveMessageWaitTimeSeconds to a number greater than zero__
 - FIFO Queue
     - Offers deduplication by id
     - Name must end with .fifo
@@ -558,12 +569,16 @@ A logically isolated section of the AWS Cloud where you can launch AWS resources
 - Can utilize NAT for private subnets
 - Enables a connection to your own datacenter
 - Can connect to others
-- Supports private connections to many AWS services (VPC endpoints)
+- VPC Endpoint - can add a private endpoint between services to keep traffic in the VPC and not over the public internet
+    - Supports private connections to many AWS services (VPC endpoints)
+    - Types 
+        - __Gateway VPC Endpoint - for DynamoDB and S3 only__
+        - Interface VPC Endpoint - for other services 
 - Security Groups - (stateful) applied to services, used as a firewall
 - Network Access Control Lists - (stateless) - more like a traditional firewall
     - Only associated with subnets (not services)
 - Private gateways
-- VPC Endpoint - can add a private endpoint between services to keep traffic in the VPC and not over the public internet
+
 - Virtual Private Network (VPN)
 - Elastic IPs - static IP address that won't change that can be assigned to services. Can scale (elastic)
 - Internet Gateways - Elastic scalable gateway to the internet
@@ -665,6 +680,7 @@ Alias - points a URL to an AWS Resource - works for root domain and non root dom
 - __API Caching - TTL__ to improve performance
 - Scales automatically
 - __Need to enable CORS on API Gateway__
+- __HTTPS ONLY (does not support unencrypted HTTP), uses the API Gateway certificate, or your custom domain / certificate__
 
 Security:
 - Authz and Authn
@@ -783,6 +799,8 @@ Rollback triggers
 
 Enables logging of all actions taken within your AWS account
 
+__CloudTrail event log files are encrypted by default with S3 SSE (can use optional KMS key)__
+
 ### OpsWorks
 Managed Chef and Puppet
 - Help managing configuration as code
@@ -803,14 +821,14 @@ Manages both authn and authz
 
 Supports identity federation (active directory, etc)
 
-Password rotation policies
+Password polices (strength, rotation policies, etc.)
 
 Integrates with services
 
 Users
 - Root account users - can set up support plan or delete account
     Don't use on daily basis
-- IAM user - can attach permissions for what that user cn do
+- IAM user - can attach permissions for what that user can do
 - Can assume a Role
 
 Groups - manage permissions for a group of IAM users
@@ -821,6 +839,7 @@ Policy
 - JSON document that defines permissions for AWS IAM identity principal
 - Defines services that identity can access and what actions can be taken on that service
 - Can be either customer managed or managed by AWS
+- __Can be used with Tags to restrict based on tags__
 
 Best Practices
 - Multi-factor authentication provides additional security
