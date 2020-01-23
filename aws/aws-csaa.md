@@ -12,6 +12,8 @@
     - [EKS](#eks)
     - [EBS](#ebs)
     - [Lambda](#lambda)
+    - [Lambda@Edge](#lambdaedge)
+    - [AWS Step Functions](#aws-step-functions)
     - [Elastic Beanstalk](#elastic-beanstalk)
     - [EBS](#ec2-and-ebs)
 - [Storage](#storage)
@@ -236,17 +238,19 @@ Disk IO is high => increase volume size (for gp2)
 
 ### Lambda
 Lambda
-- Run code without provisioning any infrastructure
+- Serverless
+    - Run code without provisioning any infrastructure
 - Only charged for usage execution time
 - Can configure from 128 MB to 3008 MB (64 MB increments)
 - Concurrency limits: 1000
+- Scales out automatically
 - Timeout up to 5 minutes (new limit is 15 minutes)
 - Integrates with services
 - Enables event-driven workflows
 - Primary service for serverless architecture
 - Triggered from other services too (CloudWatch, SNS, S3)
 
-Lambda@Edge
+### Lambda@Edge
 - Run globally at the edge
 - Can process / modify
     - User request/response
@@ -255,7 +259,7 @@ Lambda@Edge
     - Security / privacy
     - Dynamic web app at edge
 
-AWS Step Functions
+### AWS Step Functions
 - JSON State Machine
 - Lambda
 
