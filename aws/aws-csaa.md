@@ -63,6 +63,7 @@
     - [Shared Responsibility Model](#shared-responsibility-model)
     - [Well-Architected Framework](#well-architected-framework)
     - [Support](#support)
+    - [Parameter Store]
 
 # Compute
 ### EC2
@@ -209,10 +210,13 @@ Types
     - __HDD is good for large, sequential I/O__
 - Types 
     - General purpose (SSD) - default, less expensive
+        - __Max 16,000 IOPS (3x disk size, up to max)__
     - Provisioned IOPS (SSD) - pay more for higher level of performance - most expensive
+        - __IO1 more than 16,000 IOPS (outdated max of 32,000)__
+        - __Maximum ratio of provisioned IOPS:volume size (GB) is 50:1 (ex. 500 IOPS / 10 GB)__ 
     - Throughput optimized HDD - chatty database use-case, cheaper
     - Cold HDD - cheap
-    - Magnetic
+    - Magnetic - cheapest
 
 Snapshots - point in time snapshot, gets stored in S3 behind the scenes (same durability)
     Run snapshots during downtime, slow time
@@ -220,12 +224,13 @@ Snapshots - point in time snapshot, gets stored in S3 behind the scenes (same du
 Encryption
 
 Only attached to one instance at a time - like a USB drive - Not shared across instances
+- Locked to AZ (have to back-up/snapshot to copy to different AZ)
 
 HDD is better for sequential, SSD is better for scatter
 
 RAID
-- RAID 0 - high performance IOPS, NO fault tolerance
-- RAID 1 - fault tolerance - redundant copies, 2x network
+- RAID 0 - High performance IOPS, NO fault tolerance
+- RAID 1 - Fault tolerance - redundant copies, 2x network
 - Other options not recommended
 - Configure in OS
 
@@ -303,6 +308,10 @@ https://docs.aws.amazon.com/AmazonS3/latest/dev/Welcome.html
 - Consistency model
     - PUT (new) - read after write - New object can be retrieved immediately (unless you already asked for it and it was cached null
     - PUT (existing) and DELETE - eventually consistent
+- Cross Region replication
+    - Must set up for each region
+    - Files are updated in near-real-time
+    
 
 S3 Glacier
 - Designed for archiving of data within S3
@@ -329,15 +338,18 @@ S3 Glacier
 
 ### Storage Gateway
 - File gateway
-    - NFS type mount backed by S3
+    - NFS type mount
+    - Backed by S3
     - NFS or SMB
+    - Cache - most recently used data is cached in the file gateway
 - Volume gateway
-    - Cached volume
-    - Stored volume
+    - Block storage
+    - Cached volume - low latency for recently used data
+    - Stored volume - data is on premise, backed-up to S3
     - iSCSI protocol
 - Tape gateway
     - Backup
-    - Virtual Tape Library
+    - Virtual Tape Library backed by S3 and Glacier
     - iSCSI
 
 Deployment options - hardware device, virtual device
@@ -352,49 +364,51 @@ Exam tips:
 # Database
 
 ### RDS
-- Fully managed service for relational databases
-- Multi-AZ - for Disaster Recovery
-    - SYNC syncronous replication to standby in other region
-    - Increases availability
-    - Automatic failover via single DNS
-    - Not used for scaling
-- Read Replicas - Some platforms support read replicas 
-    - Used for scaling
-    - ASYNC replication within AZ, cross AZ, and cross region
-    - Replicas can be promoted to their own db
-    - Applications must update connection string to leverage read replicas
+- Relational Database Service
+- Managed service for relational databases (patches, backup, monitoring)
 - Platforms
     - MySQL
     - PostgreSQL
     - MariaDB
     - Oracle
     - SQL Server
-
-- Backups - automatically daily stored - default 7 days - can go to 35
+    - Aurora
+- Multi-AZ - for Disaster Recovery (not scaling)
+    - __Synchronous replication to standby in other region__
+    - Increases availability
+    - Automatic failover via single DNS
+    - Not used for scaling
+- Read Replicas (for scalability)
+    - Some platforms support read replicas
+    - Up to 5
+    - Used for scaling reads
+    - ASYNC replication within AZ, cross-AZ, and cross-region
+    - Replicas can be promoted to their own db
+    - __Applications must update connection string to leverage read replicas__
+- Backups - automatically daily stored - default 7 days, can go to 35
 - Snapshots - manually triggered
 - Maintenance window - patches and upgrades get applied
     - Major version upgrades may need to be specified
-- Encryption at rest with AWS KMS
+- Encryption
+    - RDS Encryption at rest with AWS KMS
     - SSL certificates to encrypt data in transit
     - To enforce SSL:
         - PostgreSQL: rds.force_ssl=1
-        - MySQL: GRANT USAGE ON *.* TO 'mysqluser… REQUIRE SSL
+        - MySQL: "GRANT USAGE ON *.* TO 'mysqluser… REQUIRE SSL"
     - Provide SSL trust certificate - download from AWS
     - Provide SSL options when connecting
 - Usually deployed within a private subnet, not public
-- Security leverages security groups
-- IAM policies control who can manage
-
+- Security
+    - Leverages security groups
+    - IAM policies control who can manage
 - Authentication
     - Username / password login or IAM for MySQL and Aurora
     - IAM Authentication
-        - MySQL, PostgreSQL only
+        - __MySQL, PostgreSQL only__
         - 15 minute token
-
 - TDE - Transparent Data Encryption
-  -   Oracle or SQL Server only - on top of KMS - may affect performance		
-
-- No SSH
+  - __Oracle or SQL Server only__ (on top of KMS - may affect performance)
+- No SSH access (managed service)
 - __Manage DB engine configuration through Parameter Groups__
 
 ### Amazon Aurora
@@ -409,6 +423,7 @@ Exam tips:
     - Autoscaling replicas
     - Reader endpoint - connects automatically to replicas
     - Load balancing happens at the connection level
+    - cross-region
 - Writer endpoint - single via DNS
 - HA native
     - 6 copies of data stored across 3 AZ
@@ -418,12 +433,14 @@ Exam tips:
 - Multi-AZ by default
 - Multi-Region available
 - Encryption at rest via KMS
-- IAM authentication
+- __IAM authentication__
 - No SSH
 - DR
     - One primary region
     - One DR region
     - DR region can be used for lower latency reads
+- Global Database - spans multiple regions and enables DR
+    - One primary region, one DR region
     
 Aurora Serverless
 - No need to choose an instance size
@@ -473,33 +490,23 @@ Local DynamoDD available for dev
 
 
 ### ElastiCache
-In-memory database - microseconds to milliseconds (10x faster)
+- In-memory database - microseconds to milliseconds (10x faster)
 
-Types:
-- Memcached
-- Redis
-
-Multi AZ
-
-Write scaling
-
-Read scaling
-
-Relieves load from DB / share state
-
-Must have an invalidation strategy (App code?)
-
-Redis is good for gaming leaderboards because it has sorting
-
-Multi-AZ with auto failover
-
-Low latency
-
-Scaling and replicas
-
-Memcached still available but offers fewer features than Redis
-
-Use-case: Database caching, session storage
+- Types:
+    - Memcached
+        - Memcached still available but offers fewer features than Redis
+    - Redis
+        - Redis is good for gaming leaderboards because it has sorting
+        - Redis AUTH (username/password) (requires SSL)
+- Does not support IAM
+- Multi-AZ with auto failover
+- Write scaling
+- Read scaling
+- Relieves load from DB / share state
+- Must have an invalidation strategy (App code?)
+- Low latency
+- Scaling and replicas
+- Use-case: Database caching, session storage
 
 ### Neptune
 Graph database
@@ -633,25 +640,20 @@ Flow logs - captures the information around traffic within the VPC
 
 
 ### CloudFront
-Supports static and dynamic content
-
-Utilizes AWS edge locations
-
-Cache (has an upstream origin for content source)
-
-Includes advanced security features
-- AWS shield for DDoS
-- AWS WAF
-
-Restrict Bucket Access - can only access s3 content via CloudFront
+- Supports static and dynamic content
+- Utilizes AWS edge locations
+- Cache (has an upstream origin for content source)
+- Includes advanced security features
+    - AWS shield for DDoS
+    - AWS WAF
+- Restrict Bucket Access - can only access s3 content via CloudFront
 - Origin Access Identity
-
-Signed URLs - must have an app generate signed urls for cloudfront
-
-GEO Restriction - determined via 3rd party GEO-IP database
-- Whitelist countries
-- Blacklist countries
-- Use-case: copyright laws
+    - To connect to S3
+- Signed URLs - use SDK to generate signed urls for CloudFront
+- GEO Restriction - determined via 3rd party GEO-IP database
+    - Whitelist countries
+    - Blacklist countries
+    - Use-case: copyright laws
 
 ### Route53
 DNS service (connect domain name to ip address / servers)
@@ -779,16 +781,11 @@ Glue Data Catalog: metadata of the source tables
 # Management and Governance
 
 ### CloudWatch
-Monitoring and management service
-
-Logs, metrics, events for most AWS services
-
-Alarms based on metrics (status codes, etc.)
-
-Provides visualization capabilities for metrics (response time over a week, etc.)
-
-Custom dashboards based on metrics
-
+- Monitoring and management service
+- Logs, metrics, events for most AWS services
+- Alarms based on metrics (status codes, etc.)
+- Provides visualization capabilities for metrics (response time over a week, etc.)
+- ustom dashboards based on metrics
 
 ### CloudFormation
 Infrastructure as code
@@ -809,9 +806,8 @@ Rollback triggers
 
 ### CloudTrail
 
-Enables logging of all actions taken within your AWS account
-
-__CloudTrail event log files are encrypted by default with S3 SSE (can use optional KMS key)__
+- Enables logging of all actions taken within your AWS account
+- __CloudTrail event log files are encrypted by default with S3 SSE (can use optional KMS key)__
 
 ### OpsWorks
 Managed Chef and Puppet
@@ -876,12 +872,10 @@ A step beyond KMS
 Integrated with services like Load Balancers
 
 ### KMS
-Key Management Service
-
-Generate and store keys for encryption
-
-Can only encrypt up to 4KB of data per call
-- If need more than that use ENVELOPE Encyprtion
+- Key Management Service - create, rotate, enable, disable
+- Generate and store keys for encryption
+- Can only encrypt up to 4KB of data per call
+    - If need more than that use ENVELOPE Encyprtion
 
 ### CloudHSM
 Physical hardware device, encryption, for complex cryptographic needs
@@ -894,8 +888,8 @@ AWS Shield - provides detection and mitigation of DDoS attacks
 
 # Migration and Transfer
 ### Snowball
-AWS Snowball - service to physically migrate petabytes of data
-AWS Snowmobile - service to physically migrate exabyte scale data onto AWS
+- AWS Snowball - service to physically migrate petabytes of data
+- AWS Snowmobile - service to physically migrate exabyte scale data onto AWS
 
 # Other
 
@@ -907,13 +901,17 @@ Encryption
     - ElastiCache
     - EFS
 
+### Parameter Store
+
+- Secure storage for configuration and secrets
+- Free for standard parameters
+
 ### Shared Responsibility Model
 
 ### Well-Architected Framework
 https://aws.amazon.com/architecture/well-architected/
 
 Five pillars of the Well-Architected Framework
-
 1. Operational Excellence 
 2. Security
 3. Reliability
