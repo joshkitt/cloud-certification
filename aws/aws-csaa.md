@@ -105,14 +105,16 @@ AMI - Amazon Machine Image (eg. Amazon Linux 2)
         - Faster boot time
         - Don't need to use User Data to run things
 - You can't copy an AMI with an associated billingProduct code that was shared with you from another account. Instead, to copy, launch an EC2 instance and create AMI from instance
-
-Instance Types
 - Defines processor, memory, and storage type
 - Cannot be changed without downtime
-- Categories
-    - General purpose
-    - Compute, Memory, Storage optimized
-    - Accelerated Computing
+- Instance Types
+    - T - General purpose, burstable
+    - M - General purpose, medium duty 
+    - C - Compute
+    - R - RAM - Memory optimized
+    - I - Storage optimized
+    - P - Accelerated Computing
+    - G - GPU optimized
 
 ### ELB
 Elastic Load Balancer
@@ -137,7 +139,7 @@ Elastic Load Balancer
         - Performs health checks to route to healthy nodes
         - Stickiness cookie to send traffic back to same server for HTTP (1 sec. to 7 days)
             - Can cause imbalance across servers
-        - Passes along client info in X-Forwarded-For, etc. header
+        - __Passes along client info in X-Forwarded-For, etc. header__
         - Uses "Target group" for routing target
         - __Weighted Target Groups routing__
     - NLB - Network Load Balancer
@@ -148,13 +150,14 @@ Elastic Load Balancer
         - Higher performance than ALB
         - Low-latency
         - NLB does not use X-Forwarded-For header, you can see source IP
-    - Classic Load Balancer 
+    - Classic Load Balancer
         - original AWS service
         - For older configurations
         - cheaper
         - not as intelligent
 - Security groups
-    Load balancer security group can be allowed in to the EC2 instance security group
+    __Load balancer security group can be allowed in to the EC2 instance security group__
+        - Used to provide security by limiting direct EC2 access (must go through ELB first)
 -  SSL / TLS Certificates
     - __AWS Certificate Manager - used to manage certificates__
     - Can use many certificates for different domains
@@ -170,17 +173,16 @@ Health checks - to monitor healthy nodes before routing
 - Termination policy default (scale in)
     1. Will choose the AZ with the most instances first
     2. Will terminate the oldest launch configuration first
-    3. __Will terminate the instance that is closest to the next billing hour__ 
+    3. __Will terminate the instance that is closest to the next billing hour__
 - Scaling cooldown
+    - Can change cooldown and threshold settings to optimize the amount of scaling and minimize thrashing
     - If scaling up and down too much, modify the cooldown timer and CloudWatch alarm period that triggers the scale-in
 - Launch configuration defines instance template for the group
 - Defines min, max, and desired number of instances
 - Performs health checks on each instance
 - Includes scaling policies that define behavior
 - Exists within 1 ore more AZs within a single region
-- Can change cooldown and threshold settings to optimize the amount of scaling and minimize thrashing
 - Application Load Balancer - communicates with Auto-Scaling Group to know to route traffic to healthy nodes
-- Free (pay for underlying resources)
 
 ### ECR
 https://docs.aws.amazon.com/AmazonECR/latest/userguide/what-is-ecr.html
@@ -188,19 +190,16 @@ https://docs.aws.amazon.com/AmazonECR/latest/userguide/what-is-ecr.html
 ### ECS
 https://docs.aws.amazon.com/AmazonECS/latest/developerguide/Welcome.html
 
-Containerized apps - Docker - Container orchestration service
-
-Manages a fleet of Docker containers
-
-Tasks are how we execute a service
+- Containerized apps - Docker - Container orchestration service
+- Manages a fleet of Docker containers
+- Tasks are how we execute a service
 
 ### Fargate
-enables containerized apps without managing servers
+Enables containerized apps without managing servers / Kubernetes
 
 ### EKS
-Amazon ECS for Kubernetes 
-
-Manages k8s cluster
+- Amazon ECS for Kubernetes 
+- Manages k8s cluster
 
 ### EBS
 Types
@@ -212,14 +211,17 @@ Types
     - General purpose (SSD) - default, less expensive
         - __Max 16,000 IOPS (3x disk size, up to max)__
     - Provisioned IOPS (SSD) - pay more for higher level of performance - most expensive
-        - __IO1 more than 16,000 IOPS (outdated max of 32,000)__
-        - __Maximum ratio of provisioned IOPS:volume size (GB) is 50:1 (ex. 500 IOPS / 10 GB)__ 
+        - __IO1 more than 16,000 IOPS (outdated - new max of 32,000)__
+        - __Maximum ratio of provisioned IOPS volume size (GB) is 50:1 (ex. 500 IOPS / 10 GB)__
+            - 64,000 IOPS on Nitro instances
+            - 32,000 IOPS on other instances 
     - Throughput optimized HDD - chatty database use-case, cheaper
     - Cold HDD - cheap
     - Magnetic - cheapest
 
 Snapshots - point in time snapshot, gets stored in S3 behind the scenes (same durability)
-    Run snapshots during downtime, slow time
+- Run snapshots during downtime, slow time
+- __Can still use instance while taking a snapshot__  
 
 Encryption
 
@@ -234,8 +236,6 @@ RAID
 - Other options not recommended
 - Configure in OS
 
-Network drive
-
 Can not attach a drive across Azs
 - Must snapshot, create volume from snapshot
 
@@ -249,11 +249,11 @@ Lambda
 - Can configure from 128 MB to 3008 MB (64 MB increments)
 - Concurrency limits: 1000
 - Scales out automatically
-- Timeout up to 5 minutes (new limit is 15 minutes)
+- Timeout up to 5 minutes (outdated: new limit is 15 minutes)
 - Integrates with services
 - Enables event-driven workflows
 - Primary service for serverless architecture
-- Triggered from other services too (CloudWatch, SNS, S3)
+- Triggered from other services too (CloudWatch, SNS, S3, API Gateway)
 
 ### Lambda@Edge
 - Run globally at the edge
@@ -267,15 +267,12 @@ Lambda
 ### AWS Step Functions
 - JSON State Machine
 - Lambda
+- __Serverless (as opposed to SWF)__
 
 ### Elastic Beanstalk
-Leverages other AWS services
-
-Only pay for the other AWS services you use
-
-Handles provisioning, load balancing, scaling, and monitoring
-
-
+- Leverages other AWS services
+- Only pay for the other AWS services you use
+- Handles provisioning, load balancing, scaling, and monitoring
 
 # Storage
 
@@ -297,21 +294,21 @@ https://docs.aws.amazon.com/AmazonS3/latest/dev/Welcome.html
    - Any file that is not versioned prior to enabling versioning will be version "null"
 - Stores data across a minimum of 3 Azs
 - Enables url access to files (based on permissions)
-- Can provide upload transfer acceleration using AWS Edge Locations
+- Can provide upload __transfer acceleration__ using AWS Edge Locations
 - Configurable rules for data lifecycle
 - MFA Delete 
 - Encryption
 - Use "multi-part upload" for files over 5GB
 - Static website hosting
   - Need to enable public read policy on bucket
-- CORS - origin
+- CORS - cross origin resource sharing
 - Consistency model
-    - PUT (new) - read after write - New object can be retrieved immediately (unless you already asked for it and it was cached null
+    - PUT (new) - read after write
+        - New object can be retrieved immediately (unless you already asked for it and it was cached null
     - PUT (existing) and DELETE - eventually consistent
 - Cross Region replication
     - Must set up for each region
     - Files are updated in near-real-time
-    
 
 S3 Glacier
 - Designed for archiving of data within S3
@@ -332,13 +329,13 @@ S3 Glacier
 - NFSv4.1 protocol
 - Block store that can be shared across instances
 - Attached to instances as a filesystem
-- (content management, web serving, data sharing, wordpress)
+- Use-case for content management, web serving, data sharing, wordpress
 - Linux AMI, Not Windows
-- EFS file sync to sync from on-premise file system to EFS
+- EFS file sync - to sync from on-premise file system to EFS
 
 ### Storage Gateway
 - File gateway
-    - NFS type mount
+    - NFS mount
     - Backed by S3
     - NFS or SMB
     - Cache - most recently used data is cached in the file gateway
@@ -374,17 +371,18 @@ Exam tips:
     - SQL Server
     - Aurora
 - Multi-AZ - for Disaster Recovery (not scaling)
-    - __Synchronous replication to standby in other region__
+    - __Synchronous replication to standby in different region__
     - Increases availability
     - Automatic failover via single DNS
     - Not used for scaling
 - Read Replicas (for scalability)
     - Some platforms support read replicas
-    - Up to 5
+    - Up to 5 read replicas
     - Used for scaling reads
     - ASYNC replication within AZ, cross-AZ, and cross-region
     - Replicas can be promoted to their own db
     - __Applications must update connection string to leverage read replicas__
+        - read connection and write connection
 - Backups - automatically daily stored - default 7 days, can go to 35
 - Snapshots - manually triggered
 - Maintenance window - patches and upgrades get applied
@@ -402,7 +400,7 @@ Exam tips:
     - Leverages security groups
     - IAM policies control who can manage
 - Authentication
-    - Username / password login or IAM for MySQL and Aurora
+    - Username / password login, or IAM for MySQL, PostgreSQL
     - IAM Authentication
         - __MySQL, PostgreSQL only__
         - 15 minute token
@@ -414,11 +412,11 @@ Exam tips:
 ### Amazon Aurora
 
 - Proprietary
-    - MySQL (5x performance)
-    - PostgreSQL (3x performance)
+    - MySQL (5x performance increase)
+    - PostgreSQL (3x performance increase)
 - Storage automatically grows in increments of 10GB up to 64TB
 - Read replicas
-    - Up to 15
+    - Up to 15 read replicas
     - Faster replication than RDS
     - Autoscaling replicas
     - Reader endpoint - connects automatically to replicas
@@ -455,7 +453,6 @@ Aurora Serverless
 - Key/Value store
 - Document store
 - Tables with primary key
-
 - Items are like a rows
 - Attribute is like a column
 - Item max is 400kb
@@ -471,11 +468,11 @@ Dynamo DB Accelerator (DAX)
 
 DynamoDB Stream
 - Changes in Dynamo can end up in Stream
- Stream can be read by Lambda
+- Stream can be read by Lambda
     - React to changes
     - Analytics
     - Insert into ElasticSearch
-- 24 hours fo data retention
+- 24 hours of data retention
 
 Transactions (Nov 2018)
 
@@ -486,12 +483,11 @@ On Demand (Nov 2018)
 Global tables
 - Multi region, replicated, high performance
     
-Local DynamoDD available for dev
+Local DynamoDB available for dev
 
 
 ### ElastiCache
 - In-memory database - microseconds to milliseconds (10x faster)
-
 - Types:
     - Memcached
         - Memcached still available but offers fewer features than Redis
@@ -503,15 +499,14 @@ Local DynamoDD available for dev
 - Write scaling
 - Read scaling
 - Relieves load from DB / share state
-- Must have an invalidation strategy (App code?)
+- Must have an invalidation strategy (App code, etc.)
 - Low latency
 - Scaling and replicas
 - Use-case: Database caching, session storage
 
 ### Neptune
-Graph database
-
-Use when relationship is more important
+- Graph database
+- Use when relationship is more important
 
 ## Amazon Redshift
 - Scalable data warehouse service
@@ -570,7 +565,7 @@ Simple Workflow Service
 - Used by Amazon in warehouse
 - Workflow executions can last up to 1 year (14 days for SQS)
 - Task-oriented API
-- A task is assigned only once and never duplicated
+- __A task is assigned only once and never duplicated__
 - Keeps track of all the tasks and events in an application
 - Deciders - control the flow of activity tasks
 - Workers - carry out the activity tasks
@@ -596,47 +591,44 @@ A logically isolated section of the AWS Cloud where you can launch AWS resources
 - Security Groups - (stateful) applied to services, used as a firewall
 - Network Access Control Lists - (stateless) - more like a traditional firewall
     - Only associated with subnets (not services)
-- Private gateways
-
 - Virtual Private Network (VPN)
-- Elastic IPs - static IP address that won't change that can be assigned to services. Can scale (elastic)
+- Elastic IPs - static IP address that won't change that can be assigned to services. Can scale (elastic).
 - Internet Gateways - Elastic scalable gateway to the internet
     - Unlimited bandwidth
 - NAT Gateway - allows you to remain private in a private subnet but get certain internet traffic (patch updates, etc)
-    - Has a hard bandwidth limit
-- Route Table - a simple table
-- Public Subnet - has an Internet Gateway in the Route Table
+    - Has a hard bandwidth limit and is limited by EC2 instance type/size used.
+- Route Table - a simple route table
+- Public Subnet - has an Internet Gateway routed in the Route Table
 - Flow Logs - gives you logs for network
 - __AWS reserves 5 IP addresses for their own use__
-    - If you need 29 IP addresses for EC2, you can't choose a Subnet of size /27 (only 32 IP)
-    - You need at least 64 IP, Subnet size /26 
+    - ex. If you need 29 IP addresses for EC2, you can't choose a Subnet of size /27 (only 32 IP)
+        - You need at least Subnet size /26 for 64 IP  
 - __A VPC can only have 1 Internet Gateway__
-
+- __Egress only Internet Gateway is for IPV6 only__
 - __VPC Peering can connect 2 VPCs together (not transitive)__
-    - For each VPC subnet you want to peer, you have to change the route table
+    - For each VPC subnet you want to peer, you have to change the route table on both sides
     - __CIDRs must not overlap__
  
 NACL
-- STATELESS
+- STATELESS - traffic will be evaluated against rules on both ingress and egress
+- Controls inbound and outbound traffic for subnets within the VPC
 - VPCs are automatically given a default NACL with allows all outbound and inbound traffic
-- Each subnet within a VPC must be associated with a NACL
+- Each subnet within a VPC must be associated with a NACL - either explicit or implicit
 - Subnets can only be associated with 1 NACL at a time
 - Rule can either ALLOW or DENY traffic (SecurityGroups can only ALLOW)
-- When you create a NACL, it will deny all traffic by default
-- Controls inbound and outbound traffic for subnets within the VPC
+- When you create a NACL, it will deny all traffic by default (this is different than when AWS Default VPC creates NACL)
 
-Subnet
+Security Group
 - STATEFUL
-- All traffic is blocked by default
-- There are no DENY rules
-- Multiple instances across multiple subnets can belong to a Security Group
+- All traffic is not allowed by default
+- There are no DENY rules, only allow rules
+- Multiple EC2 instances across multiple subnets can belong to a Security Group
+    - Can be attached to multiple instances
 - Cannot block a specific IP Address (need NACL for that)
-
-Security groups - firewall-like controls for resources within the VPC
- - Can be attached to multiple instances
- - Locked down to a region/vpc combination
+- firewall-like controls for resources within the VPC
+- Locked down to a region/vpc combination
  
-Flow logs - captures the information around traffic within the VPC
+VPC Flow logs - captures the information around traffic within the VPC
 
 
 ### CloudFront
@@ -644,7 +636,7 @@ Flow logs - captures the information around traffic within the VPC
 - Utilizes AWS edge locations
 - Cache (has an upstream origin for content source)
 - Includes advanced security features
-    - AWS shield for DDoS
+    - AWS Shield for protection agains DDoS attacks
     - AWS WAF
 - Restrict Bucket Access - can only access s3 content via CloudFront
 - Origin Access Identity
@@ -656,33 +648,26 @@ Flow logs - captures the information around traffic within the VPC
     - Use-case: copyright laws
 
 ### Route53
-DNS service (connect domain name to ip address / servers)
-
-Highly available, can resolve to a different region if needed
-
-Global resource routing depending on latency or geo location (proximity)
-
-Weighted routing - eg 60% traffic to one IP, 40% to the other
-
-Latency routing - based on health check
-
-Geolocation routing - based on location
-
-Geoproximity routing - visual diagram of routing
-
-A record - Points URL to IP address
-
-CNAME - points a URL to any other URL - only for non-root domain
-
-Alias - points a URL to an AWS Resource - works for root domain and non root domain
-- A custom AWS extension to DNS
+- DNS service (connect domain name to ip address / servers)
+- Highly available, can resolve to a different region if needed
+- Global resource routing depending on latency or geo location (proximity)
+- Routing policy types
+    - Weighted routing - eg 60% traffic to one IP, 40% to the other
+    - Latency routing - based on health check
+    - Geolocation routing - based on location
+    - Geoproximity routing - visual diagram of routing
+- Record Sets
+    - A RECORD - Points URL to IP address
+    - CNAME - points a URL to any other URL - only for non-root domain
+    - ALIAS - points a URL to an AWS Resource - works for root domain and non root domain
+        - A custom AWS extension to DNS
 
 ### Amazon API Gateway
 - Fully managed API management service
 - Directly integrates with multiple AWS services
 - Provides monitoring and metrics on API calls
 - Supports VPC and on-prem private apps
-- Track clien consumption of API
+- Track client consumption of API
 - Can sit in front of microservices with disparate backends
 - Versioning - maintain multiple versions
 - Environments - dev, test, stage, prod, etc.
@@ -694,7 +679,8 @@ Alias - points a URL to an AWS Resource - works for root domain and non root dom
 - __API Caching - TTL__ to improve performance
 - Scales automatically
 - __Need to enable CORS on API Gateway__
-- __HTTPS ONLY (does not support unencrypted HTTP), uses the API Gateway certificate, or your custom domain / certificate__
+- __HTTPS ONLY (does not support unencrypted HTTP)
+    - __Uses the API Gateway certificate, or your custom domain / certificate__
 
 Security:
 - Authz and Authn
@@ -715,67 +701,51 @@ Establish a private, dedicated network connection from your private data center 
 - IPSECTunnel
 
 ### Bastion Hosts
-jump box
-
-Put one in your public subnet to authenticate and access your other servers
-
-Make sure it only has port 22 traffic from your own IP you need, not from the security groups of your other instances
+- "jump box"
+- Put one in your public subnet to authenticate and access your other servers
+- Make sure it only has port 22 traffic from your own IP you need, not from the security groups of your other instances
 
 
 # Analytics
 
 ### Athena
 https://docs.aws.amazon.com/athena/latest/ug/what-is.html
-Fast, cost-effective, interactive query service that makes it easy to analyze petabytes of data in S3 with no data warehouses or clusters to manage.
-
-SQL to query
-
-JDBC/ODBC driver available
-
-Charged per query and per amount of data scanned
-
-CSV, JSON, ORC, AVRO, and Parquet
-
-Exam tip: Use Athena to analyze data directly on S3
+- Fast, cost-effective, interactive query service that makes it easy to analyze petabytes of data in S3 with no data warehouses or clusters to manage.
+- SQL to query
+- JDBC/ODBC driver available
+- Charged per query and per amount of data scanned
+- CSV, JSON, ORC, AVRO, and Parquet
+- __Exam tip: Use Athena to analyze data directly on S3__
 
 ### EMR
-Big data analytics for Spark, Hadoop, etc.
+- Elastic Map Reduce
+- Big data analytics for Spark, Hadoop, etc.
 
 ### Kinesis
-Managed alternative to Apache Kafka
-
-Streaming tool
-
-Logs, metrics, IoT, click streams, stock prices, gaming data
-
-Data is replicated to 3 AZs
-
-Choose a partition key that is high distributed (prevent hot partition)
-
-Consumer
-- KCL - Kinesis Client Library - uses DynamoDB to track workers
-
-Service Types:
-- Kinesis Streams
-    - Data is stored in Shards, you can add more Shards to scale
-    - Stores data for 24 hours, up to 7 days
-    - Consumers can store data in DynamoDB, RDS, S3, etc.
-- Kinesis Firehose
-    - Data is analyzed as it streams in (Lambda)
-    - Data is not stored but can be output to S3, ElasticSearch, etc.
-- Kinesis Analytics
-    - Can analyze the data on the fly
+- Managed alternative to Apache Kafka
+- Streaming tool
+- Logs, metrics, IoT, click streams, stock prices, gaming data
+- Data is replicated to 3 AZs
+- Choose a partition key that is high distributed (prevent hot partition)
+- Consumer
+    - KCL - Kinesis Client Library - uses DynamoDB to track workers
+- Service Types:
+    - Kinesis Streams
+        - Data is stored in Shards, you can add more Shards to scale
+        - Stores data for 24 hours, up to 7 days
+        - Consumers can store data in DynamoDB, RDS, S3, etc.
+    - Kinesis Firehose
+        - Data is analyzed as it streams in (Lambda)
+        - Data is not stored but can be output to S3, ElasticSearch, etc.
+    - Kinesis Analytics
+        - Can analyze the data on the fly
 
 ### Glue
-Fully-managed ETL
-
-Prep data for analytics
-
-Serverless
-
-Automated code generation
-
-Glue Data Catalog: metadata of the source tables
+- Fully-managed ETL
+- Prep data for analytics
+- Serverless
+- Automated code generation
+- Glue Data Catalog: metadata of the source tables
 
 
 # Management and Governance
@@ -788,21 +758,14 @@ Glue Data Catalog: metadata of the source tables
 - ustom dashboards based on metrics
 
 ### CloudFormation
-Infrastructure as code
-
-Managed service for provisioning infrastructure based on templates
-
-YAML or JSON
-
-Infrastructure as code (best practice for configuring)
-
-Manages dependencies between resources
-
-Creates services in the correct order
-
-Provides drift detection to find changes
-
-Rollback triggers
+- Infrastructure as code
+- Managed service for provisioning infrastructure based on templates
+- YAML or JSON
+- Infrastructure as code (best practice for configuring)
+- Manages dependencies between resources
+- Creates services in the correct order
+- Provides drift detection to find changes
+- Rollback triggers
 
 ### CloudTrail
 
@@ -810,7 +773,7 @@ Rollback triggers
 - __CloudTrail event log files are encrypted by default with S3 SSE (can use optional KMS key)__
 
 ### OpsWorks
-Managed Chef and Puppet
+- Managed Chef / Puppet
 - Help managing configuration as code
 - Consistent deployments
 - Automate user accounts, cron jobs, etc.
@@ -819,19 +782,13 @@ Managed Chef and Puppet
 # Security, Identity, & Compliance
 
 ### IAM
-Identity & Access Management
-
-Service that controls access to resources
-
-Free
-
-Manages both authn and authz
-
-Supports identity federation (active directory, etc)
-
-Password polices (strength, rotation policies, etc.)
-
-Integrates with services
+- Identity & Access Management
+- Service that controls access to resources
+- Free
+- Manages both authn and authz
+- Supports identity federation (active directory, etc)
+- Password polices (strength, rotation policies, etc.)
+- Integrates with services
 
 Users
 - Root account users - can set up support plan or delete account
@@ -839,9 +796,11 @@ Users
 - IAM user - can attach permissions for what that user can do
 - Can assume a Role
 
-Groups - manage permissions for a group of IAM users
+Groups
+- Manage permissions for a group of IAM users
 
-Roles - Enables a user or AWS service to assume permissions for a task
+Roles 
+- Enables an AWS service to assume permissions for a task
 
 Policy
 - JSON document that defines permissions for AWS IAM identity principal
@@ -879,12 +838,11 @@ Integrated with services like Load Balancers
 
 ### CloudHSM
 Physical hardware device, encryption, for complex cryptographic needs
+__If you get locked out, you will lose your keys__
 
 ### WAF & Shield
-AWS WAF - protects your app from common exploits (SQL injection, etc.)
-
-AWS Shield - provides detection and mitigation of DDoS attacks
-
+- AWS WAF - protects your app from common exploits (SQL injection, etc.)
+- AWS Shield - provides detection and mitigation of DDoS attacks
 
 # Migration and Transfer
 ### Snowball
@@ -900,6 +858,14 @@ Encryption
     - RDS
     - ElastiCache
     - EFS
+    
+Cost Explorer - tool that enables you to view and analyze your costs and usage.
+
+Amazon Guard​Duty - Protect your AWS accounts and workloads with intelligent threat detection and 
+continuous monitoring
+
+AWS Budgets - gives you the ability to set custom budgets that alert you when your costs or usage exceed
+(or are forecasted to exceed) your budgeted amount.
 
 ### Parameter Store
 
@@ -921,6 +887,8 @@ Five pillars of the Well-Architected Framework
 ### Support
 - AWS Basic Support
     - Access to Trusted Advisor - gives insight and suggestions to optimize costs, etc.
+        - Trusted Advisor scans your AWS infrastructure, compares it to AWS best practices in five categories
+         and provides recommended actions. Cost, Performance, Security, Fault tolerance, Service limits
     - 24x7 access to support, whitepapers, forumns, etc.
     - Personal health dashboard
     - Free
@@ -939,11 +907,14 @@ Five pillars of the Well-Architected Framework
     - $15,000/month but goes up based on usage
 - Response time goes down for each level
 
-- Reliability - solution is performing tasks and working as expected
+- Reliability - Solution is performing tasks and working as expected
 - Fault tolerance - Being able to support the failure of components
 - High Availability - Entire solution running despite issues that may occur
 - Disaster Recovery
-    - Backup and restore
-    - Pilot Light - minimal resources setup in AWS to support a DR event (main database)
-    - Warm Standby - systems running in AWS, ready to go and scale up to meet demand
-    - Multi-Site - (Active / Active) - actively sending users to AWS and your own data center
+    - Terms
+        - RPO - Recovery Point Objective - Time between recovery point and disaster results in data loss
+        - RTO - Recovery Time Objective - When you recover (RTO - disaster = downtime )
+    - Backup and restore (High RPO)
+    - Pilot Light - minimal resources setup in AWS to support a DR event (ex. main database)
+    - Warm Standby - full system running in AWS (not scaled), ready to go and scale up to meet demand
+    - Multi-Site - (Low RTO) (Active / Active) - actively sending users to AWS and your own data center
