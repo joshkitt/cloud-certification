@@ -778,7 +778,22 @@ https://docs.aws.amazon.com/athena/latest/ug/what-is.html
 - Logs, metrics, events for most AWS services
 - Alarms based on metrics (status codes, etc.)
 - Provides visualization capabilities for metrics (response time over a week, etc.)
-- ustom dashboards based on metrics
+- Custom dashboards based on metrics
+- Monitoring type
+    - __Basic - 5-minute periods - free__
+    - __Detailed - 1-minute period - additional cost__
+- Metrics
+    - CPU Utilization
+    - Network IO
+    - Disk IO
+- Custom metrics
+    - Use CloudWatch Agent
+        - Collect both system metrics and log files
+    - __Memory usage__
+    - __Disk space usage__
+    - Resolution
+        - Standard resolution, with data having __one-minute__ granularity (__default__)
+        - High resolution, with data at a granularity of __one second__
 
 ### CloudFormation
 - Infrastructure as code
