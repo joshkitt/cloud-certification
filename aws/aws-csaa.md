@@ -1,6 +1,14 @@
 # AWS Certified Solutions Architect Associate
 
-## Index
+### AWS Documentation
+- https://console.aws.amazon.com/console/home - AWS Console
+- https://docs.aws.amazon.com/security/ - AWS Security Documentation
+- https://aws.amazon.com/architecture/well-architected/ - Well-Architected Framework
+- https://aws.amazon.com/whitepapers - AWS Whitepapers and Guides
+- https://www.ec2instances.info/ - EC2 Instance Pricing
+- https://cidr.xyz/ - CIDR Visualizer 
+
+### Index
 
 - [Compute](#compute)
     - [EC2](#ec2)   
@@ -95,7 +103,12 @@ Secured by a VPC security group and a keypair for logging into the server
 
 Scaling
 - Vertical scaling - scale up instance type with additional resources (downtime)
+    - ex. Upgrade from T2 Nano to T2 Micro
 - Horizontal scaling - add more instances to handle more demand
+    - Auto Scaling Group (Load balancer)
+- High Availability - run instance of the app across multiple AZs
+    - Auto Scaling Group multi AZ
+    - Load Balancer multi AZ
 
 AMI - Amazon Machine Image (eg. Amazon Linux 2)
 - Pre-built from Amazon
@@ -104,17 +117,20 @@ AMI - Amazon Machine Image (eg. Amazon Linux 2)
     - Can pre-install packages
         - Faster boot time
         - Don't need to use User Data to run things
-- You can't copy an AMI with an associated billingProduct code that was shared with you from another account. Instead, to copy, launch an EC2 instance and create AMI from instance
+- You can't copy an AMI with an associated billingProduct code that was shared with you from another account. 
+Instead, to copy, launch an EC2 instance and create AMI from instance
 - Defines processor, memory, and storage type
 - Cannot be changed without downtime
-- Instance Types
-    - T - General purpose, burstable
-    - M - General purpose, medium duty 
-    - C - Compute
-    - R - RAM - Memory optimized
-    - I - Storage optimized
-    - P - Accelerated Computing
-    - G - GPU optimized
+- __Locked to region, can be copied to a different region for use__
+
+Instance Types
+- T - General purpose, burstable
+- M - General purpose, medium duty 
+- C - Compute
+- R - RAM - Memory optimized
+- I - Storage optimized
+- P - Accelerated Computing
+- G - GPU optimized
 
 ### ELB
 Elastic Load Balancer
@@ -128,26 +144,30 @@ Elastic Load Balancer
 - Intelligent routing
 - SSL termination
 - __Access Logs can be enabled to capture detailed inforamtion about requests (disabled by default)__
+- Health checks - to monitor healthy nodes before routing
+    - Out of service vs In service
 - HTTPS listener
     - __clients can use Server Name Indication (SNI) to specify the hostname they reach__
+- __ELBs can scale but not instantaneously – contact AWS to “warm-up” ELBs__
 - Types
     - ALB - Application Load Balancer
         - HTTP Layer 7
+        - HTTP / HTTPS / Websockets
         - Called by DNS name
         - Hostname, path, redirects, dynamic host port mapping for ECS
         - Good fit for Docker 
         - Performs health checks to route to healthy nodes
-        - Stickiness cookie to send traffic back to same server for HTTP (1 sec. to 7 days)
+        - __Stickiness cookie to send traffic back to same server for HTTP (1 sec. to 7 days)__
             - Can cause imbalance across servers
-        - __Passes along client info in X-Forwarded-For, etc. header__
+        - __Doesn't see IP of client directly - passes along client info in X-Forwarded-For, etc. header__
         - Uses "Target group" for routing target
         - __Weighted Target Groups routing__
     - NLB - Network Load Balancer
         - TCP Layer 4
-        - Static IP per AZ
+        - Static IP per AZ, or Elastic IP
         - Public facing - must attach Elastic IP
         - Private facing - gets random private IP
-        - Higher performance than ALB
+        - __Higher performance than ALB__
         - Low-latency
         - NLB does not use X-Forwarded-For header, you can see source IP
     - Classic Load Balancer
@@ -158,13 +178,11 @@ Elastic Load Balancer
 - Security groups
     __Load balancer security group can be allowed in to the EC2 instance security group__
         - Used to provide security by limiting direct EC2 access (must go through ELB first)
+        - __Security groups can reference other security groups__
 -  SSL / TLS Certificates
     - __AWS Certificate Manager - used to manage certificates__
     - Can use many certificates for different domains
     - __Server Name Indication (SNI) - clients can specify the hostname__
-
-Health checks - to monitor healthy nodes before routing
-	- Out of service vs In service
 
 ### Auto Scaling Group
 - Scale in or out based on CloudWatch alarms - built-in metrics and custom metrics
@@ -254,6 +272,10 @@ Lambda
 - Enables event-driven workflows
 - Primary service for serverless architecture
 - Triggered from other services too (CloudWatch, SNS, S3, API Gateway)
+- __Consistency model__
+    - Eventually consistent - default
+    - Strongly consistent reads
+    - ACID transactions 
 
 ### Lambda@Edge
 - Run globally at the edge
@@ -455,7 +477,7 @@ Aurora Serverless
 - Tables with primary key
 - Items are like a rows
 - Attribute is like a column
-- Item max is 400kb
+- Item (key and value combined) max is 400kb
 
 Provisioned Throughput
 - Read Capacity Units
@@ -601,6 +623,7 @@ A logically isolated section of the AWS Cloud where you can launch AWS resources
 - Public Subnet - has an Internet Gateway routed in the Route Table
 - Flow Logs - gives you logs for network
 - __AWS reserves 5 IP addresses for their own use__
+    - __The first 4 IPs, and the last 1 IP are reserved__
     - ex. If you need 29 IP addresses for EC2, you can't choose a Subnet of size /27 (only 32 IP)
         - You need at least Subnet size /26 for 64 IP  
 - __A VPC can only have 1 Internet Gateway__
@@ -608,7 +631,7 @@ A logically isolated section of the AWS Cloud where you can launch AWS resources
 - __VPC Peering can connect 2 VPCs together (not transitive)__
     - For each VPC subnet you want to peer, you have to change the route table on both sides
     - __CIDRs must not overlap__
- 
+
 NACL
 - STATELESS - traffic will be evaluated against rules on both ingress and egress
 - Controls inbound and outbound traffic for subnets within the VPC
