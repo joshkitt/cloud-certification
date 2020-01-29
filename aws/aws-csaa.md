@@ -110,6 +110,8 @@ Scaling
     - Auto Scaling Group multi AZ
     - Load Balancer multi AZ
 
+__Soft limit of 20 EC2 instances per region (AWS can  lift this limit)__
+
 AMI - Amazon Machine Image (eg. Amazon Linux 2)
 - Pre-built from Amazon
 - Marketplace for AMIs from other people
@@ -132,6 +134,11 @@ Instance Types
 - P - Accelerated Computing
 - G - GPU optimized
 
+__ENI Attachment__
+- When it's running (hot attach)
+- When it's stopped (warm attach)
+- When the instance is being launched (cold attach).
+
 ### ELB
 Elastic Load Balancer
 - Distributes traffic across multiple targets
@@ -148,6 +155,8 @@ Elastic Load Balancer
     - Out of service vs In service
 - HTTPS listener
     - __clients can use Server Name Indication (SNI) to specify the hostname they reach__
+        - __SNI not supported in Classic Load Balancer__
+        - __SNI is also available for CloudFront__
 - __ELBs can scale but not instantaneously – contact AWS to “warm-up” ELBs__
 - Types
     - ALB - Application Load Balancer
@@ -182,7 +191,8 @@ Elastic Load Balancer
 -  SSL / TLS Certificates
     - __AWS Certificate Manager - used to manage certificates__
     - Can use many certificates for different domains
-    - __Server Name Indication (SNI) - clients can specify the hostname__
+    - __Server Name Indication (SNI) - clients can specify the hostname - multiple certs for diff domains__
+        - __ELB (except Classic) can use SNI, along with CloudFront__
 
 ### Auto Scaling Group
 - Scale in or out based on CloudWatch alarms - built-in metrics and custom metrics
@@ -195,6 +205,7 @@ Elastic Load Balancer
 - Scaling cooldown
     - Can change cooldown and threshold settings to optimize the amount of scaling and minimize thrashing
     - If scaling up and down too much, modify the cooldown timer and CloudWatch alarm period that triggers the scale-in
+    - __Cooldown period defaults to 300 seconds__
 - Launch configuration defines instance template for the group
 - Defines min, max, and desired number of instances
 - Performs health checks on each instance
@@ -234,12 +245,20 @@ Types
             - 64,000 IOPS on Nitro instances
             - 32,000 IOPS on other instances 
     - Throughput optimized HDD - chatty database use-case, cheaper
-    - Cold HDD - cheap
+    - __Cold HDD - cheap, good for infrequently accessed, sequential__
     - Magnetic - cheapest
 
-Snapshots - point in time snapshot, gets stored in S3 behind the scenes (same durability)
+__Automatically replicated within the AZ (only with the AZ) to prevent data loss due to a failure__
+
+__Support live configuration changes while in production which means that you can modify the volume type, volume size,
+ and IOPS capacity without service interruptions.__
+
+Snapshots
+- Point in time snapshot, gets stored in S3 behind the scenes (same durability)
 - Run snapshots during downtime, slow time
-- __Can still use instance while taking a snapshot__  
+- __Can still use instance while taking a snapshot__
+- __Amazon Data Lifecycle Manager (Amazon DLM) - automate the creation, retention, and deletion of snapshots
+ taken to back up your Amazon EBS volumes__
 
 Encryption
 
@@ -253,6 +272,8 @@ RAID
 - RAID 1 - Fault tolerance - redundant copies, 2x network
 - Other options not recommended
 - Configure in OS
+- __To take a snapshot of a RAID array, you have to stop all volume I/O and flush all caches to disk,
+then snapshot each volume__
 
 Can not attach a drive across Azs
 - Must snapshot, create volume from snapshot
@@ -344,6 +365,13 @@ S3 Glacier
         - 23x less expensive
 - Expedited retrieval - for a cost can get it back in 10 mins
 - Bulk retrieval
+- __Encrypted at rest by default__
+
+__S3 Event Notification__
+- Lambda
+- SNS
+- SQS 
+
 
 ### EFS
 - Managed NFS
@@ -478,6 +506,7 @@ Aurora Serverless
 - Items are like a rows
 - Attribute is like a column
 - Item (key and value combined) max is 400kb
+- TTL - DynamoDB will delete items expired after TTL
 
 Provisioned Throughput
 - Read Capacity Units
@@ -684,6 +713,8 @@ VPC Flow logs - captures the information around traffic within the VPC
     - CNAME - points a URL to any other URL - only for non-root domain
     - ALIAS - points a URL to an AWS Resource - works for root domain and non root domain
         - A custom AWS extension to DNS
+- __Routing to an S3 bucket configured to host a static website__
+    - The bucket must have the same name as your domain or subdomain
 
 ### Amazon API Gateway
 - Fully managed API management service
@@ -885,18 +916,26 @@ __If you get locked out, you will lose your keys__
 # Migration and Transfer
 ### Snowball
 - AWS Snowball - service to physically migrate petabytes of data
+    - __80TB device only has 72TB usable__
 - AWS Snowmobile - service to physically migrate exabyte scale data onto AWS
 
 # Other
 
 Encryption
+- AES-256
 - S3 can do in-place encryption
 - Migration required
     - EBS
     - RDS
     - ElastiCache
     - EFS
-    
+- __Encrypted default for data at rest__
+    - Storage Gateway
+    - Glacier
+- __Perfect Forward Secrecy is used to offer SSL/TLS cipher suites for which two AWS services?__
+    - CloudFront
+    - ELB
+
 Cost Explorer - tool that enables you to view and analyze your costs and usage.
 
 Amazon Guard​Duty - Protect your AWS accounts and workloads with intelligent threat detection and 
