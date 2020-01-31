@@ -90,6 +90,8 @@ Placement Groups
 - Cluster - Can put EC2 instances close to each other to minimize latency
     - great network speed, increased risk of failure
     - can cover multiple Azs and different hardware - want to maximize resiliency
+    - launch instances in a single launch request and the same instance type
+        - could get an 'insufficient capacity error' otherwise
 - __Spread can only have 7 running instances per AZ__
 - Partitioned - cluster EC2 instances, but spread out the clusters, up to 7 partitions per AZ
 
@@ -111,6 +113,8 @@ Scaling
     - Load Balancer multi AZ
 
 __Soft limit of 20 EC2 instances per region (AWS can  lift this limit)__
+
+Remote Desktop Protocol - 3389
 
 AMI - Amazon Machine Image (eg. Amazon Linux 2)
 - Pre-built from Amazon
@@ -341,7 +345,7 @@ https://docs.aws.amazon.com/AmazonS3/latest/dev/Welcome.html
 - Configurable rules for data lifecycle
 - MFA Delete 
 - Encryption
-- Use "multi-part upload" for files over 5GB
+- Use multi-part upload for files over 5GB (or 100MB based on practice exam)
 - Static website hosting
   - Need to enable public read policy on bucket
 - CORS - cross origin resource sharing
@@ -352,6 +356,7 @@ https://docs.aws.amazon.com/AmazonS3/latest/dev/Welcome.html
 - Cross Region replication
     - Must set up for each region
     - Files are updated in near-real-time
+    - __Must enable versioning__
 
 S3 Glacier
 - Designed for archiving of data within S3
@@ -660,6 +665,10 @@ A logically isolated section of the AWS Cloud where you can launch AWS resources
 - __VPC Peering can connect 2 VPCs together (not transitive)__
     - For each VPC subnet you want to peer, you have to change the route table on both sides
     - __CIDRs must not overlap__
+- __If you need multicast networking, create a virtual overlay network running on the OS level__
+- Enhanced Networking
+    - Higher packet per second performance
+    - lower inter-instance latency  
 
 NACL
 - STATELESS - traffic will be evaluated against rules on both ingress and egress
