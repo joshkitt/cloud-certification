@@ -346,6 +346,8 @@ https://docs.aws.amazon.com/AmazonS3/latest/dev/Welcome.html
 - MFA Delete 
 - Encryption
 - Use multi-part upload for files over 5GB (or 100MB based on practice exam)
+__- 5GB is the largest file size you can upload in a single PUT__
+__- 5TB is the largest file size__
 - Static website hosting
   - Need to enable public read policy on bucket
 - CORS - cross origin resource sharing
