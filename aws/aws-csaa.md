@@ -189,14 +189,14 @@ Elastic Load Balancer
         - cheaper
         - not as intelligent
 - Security groups
-    __Load balancer security group can be allowed in to the EC2 instance security group__
+    - __Security groups can reference other security groups__
+    - __Load balancer security group can be allowed in to the EC2 instance security group__
         - Used to provide security by limiting direct EC2 access (must go through ELB first)
-        - __Security groups can reference other security groups__
 -  SSL / TLS Certificates
     - __AWS Certificate Manager - used to manage certificates__
-    - Can use many certificates for different domains
     - __Server Name Indication (SNI) - clients can specify the hostname - multiple certs for diff domains__
         - __ELB (except Classic) can use SNI, along with CloudFront__
+        - Can use many certificates for different domains
 
 ### Auto Scaling Group
 - Scale in or out based on CloudWatch alarms - built-in metrics and custom metrics
@@ -235,11 +235,13 @@ Enables containerized apps without managing servers / Kubernetes
 - Manages k8s cluster
 
 ### EBS
-Types
 - Filesystem for EC2 instances
-    - __SSD can be used for bootable volume (HDD CAN NOT)__
-    - __SSD is good for small, random I/O__
-    - __HDD is good for large, sequential I/O__
+- Only attached to one instance at a time - like a USB drive - Not shared across instances
+- Locked to AZ (have to back-up/snapshot to copy to different AZ)
+- __HDD is better for sequential, SSD is better for scatter__
+- __SSD can be used for bootable volume (HDD CAN NOT)__
+- __SSD is good for small, random I/O__
+- __HDD is good for large, sequential I/O__
 - Types 
     - General purpose (SSD) - default, less expensive
         - __Max 16,000 IOPS (3x disk size, up to max)__
@@ -252,10 +254,10 @@ Types
     - __Cold HDD - cheap, good for infrequently accessed, sequential__
     - Magnetic - cheapest
 
-__Automatically replicated within the AZ (only with the AZ) to prevent data loss due to a failure__
+__Automatically replicated within the AZ (only within the AZ) to prevent data loss due to a failure__
 
-__Support live configuration changes while in production which means that you can modify the volume type, volume size,
- and IOPS capacity without service interruptions.__
+__Support live configuration changes while in production__
+    - __You can modify the volume type, volume size and IOPS capacity without service interruptions.__
 
 Snapshots
 - Point in time snapshot, gets stored in S3 behind the scenes (same durability)
@@ -266,16 +268,11 @@ Snapshots
 
 Encryption
 
-Only attached to one instance at a time - like a USB drive - Not shared across instances
-- Locked to AZ (have to back-up/snapshot to copy to different AZ)
-
-HDD is better for sequential, SSD is better for scatter
-
 RAID
 - RAID 0 - High performance IOPS, NO fault tolerance
 - RAID 1 - Fault tolerance - redundant copies, 2x network
 - Other options not recommended
-- Configure in OS
+- __Configure in OS__
 - __To take a snapshot of a RAID array, you have to stop all volume I/O and flush all caches to disk,
 then snapshot each volume__
 
@@ -339,7 +336,7 @@ https://docs.aws.amazon.com/AmazonS3/latest/dev/Welcome.html
 - Versioning
    - Set at the bucket level
    - Any file that is not versioned prior to enabling versioning will be version "null"
-- Stores data across a minimum of 3 Azs
+- Stores data across a minimum of 3 AZs
 - Enables url access to files (based on permissions)
 - Can provide upload __transfer acceleration__ using AWS Edge Locations
 - Configurable rules for data lifecycle
