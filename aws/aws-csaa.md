@@ -175,6 +175,7 @@ Elastic Load Balancer
         - __Doesn't see IP of client directly - passes along client info in X-Forwarded-For, etc. header__
         - Uses "Target group" for routing target
         - __Weighted Target Groups routing__
+        - HTTP / HTTPS Health Checks
     - NLB - Network Load Balancer
         - TCP Layer 4
         - Static IP per AZ, or Elastic IP
@@ -183,6 +184,7 @@ Elastic Load Balancer
         - __Higher performance than ALB__
         - Low-latency
         - NLB does not use X-Forwarded-For header, you can see source IP
+        - TCP Health Check
     - Classic Load Balancer
         - original AWS service
         - For older configurations
