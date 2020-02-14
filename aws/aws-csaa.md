@@ -6,7 +6,7 @@
 - https://aws.amazon.com/architecture/well-architected/ - Well-Architected Framework
 - https://aws.amazon.com/whitepapers - AWS Whitepapers and Guides
 - https://www.ec2instances.info/ - EC2 Instance Pricing
-- https://cidr.xyz/ - CIDR Visualizer 
+- https://www.ipaddressguide.com/cidr - CIDR
 
 ### Index
 
@@ -89,7 +89,7 @@ User Data - you can store information for an instance to run on startup
 Placement Groups
 - Cluster - Can put EC2 instances close to each other to minimize latency
     - great network speed, increased risk of failure
-    - can cover multiple Azs and different hardware - want to maximize resiliency
+    - can cover multiple AZs and different hardware - want to maximize resiliency
     - launch instances in a single launch request and the same instance type
         - could get an 'insufficient capacity error' otherwise
 - __Spread can only have 7 running instances per AZ__
@@ -112,7 +112,7 @@ Scaling
     - Auto Scaling Group multi AZ
     - Load Balancer multi AZ
 
-__Soft limit of 20 EC2 instances per region (AWS can  lift this limit)__
+__Soft limit of 20 EC2 instances per Region (AWS can  lift this limit)__
 
 Remote Desktop Protocol - 3389
 
@@ -127,7 +127,7 @@ AMI - Amazon Machine Image (eg. Amazon Linux 2)
 Instead, to copy, launch an EC2 instance and create AMI from instance
 - Defines processor, memory, and storage type
 - Cannot be changed without downtime
-- __Locked to region, can be copied to a different region for use__
+- __Locked to Region, can be copied to a different Region for use__
 
 Instance Types
 - T - General purpose, burstable
@@ -148,7 +148,7 @@ Elastic Load Balancer
 - Distributes traffic across multiple targets
 - Route users to different locations
 - Integrates with EC2, ECS, and Lambda
-- Supports one or more Azs in a region
+- Supports one or more Azs in a Region
 - Any load balancer has a static hostname, do not resolve underlying IP
 - Put in front of an auto-scaling group
 - Like an F5
@@ -216,7 +216,7 @@ Elastic Load Balancer
 - Defines min, max, and desired number of instances
 - Performs health checks on each instance
 - Includes scaling policies that define behavior
-- Exists within 1 ore more AZs within a single region
+- Exists within 1 ore more AZs within a single Region
 - Application Load Balancer - communicates with Auto-Scaling Group to know to route traffic to healthy nodes
 
 ### ECR
@@ -355,7 +355,7 @@ __- 5TB is the largest file size__
         - New object can be retrieved immediately (unless you already asked for it and it was cached null
     - PUT (existing) and DELETE - eventually consistent
 - Cross Region replication
-    - Must set up for each region
+    - Must set up for each Region
     - Files are updated in near-real-time
     - __Must enable versioning__
 
@@ -427,7 +427,7 @@ Exam tips:
     - SQL Server
     - Aurora
 - Multi-AZ - for Disaster Recovery (not scaling)
-    - __Synchronous replication to standby in different region__
+    - __Synchronous replication to standby in different Region__
     - Increases availability
     - Automatic failover via single DNS
     - Not used for scaling
@@ -435,7 +435,7 @@ Exam tips:
     - Some platforms support read replicas
     - Up to 5 read replicas
     - Used for scaling reads
-    - ASYNC replication within AZ, cross-AZ, and cross-region
+    - ASYNC replication within AZ, cross-AZ, and cross-Region
     - Replicas can be promoted to their own db
     - __Applications must update connection string to leverage read replicas__
         - read connection and write connection
@@ -477,7 +477,7 @@ Exam tips:
     - Autoscaling replicas
     - Reader endpoint - connects automatically to replicas
     - Load balancing happens at the connection level
-    - cross-region
+    - cross-Region
 - Writer endpoint - single via DNS
 - HA native
     - 6 copies of data stored across 3 AZ
@@ -490,11 +490,11 @@ Exam tips:
 - __IAM authentication__
 - No SSH
 - DR
-    - One primary region
-    - One DR region
-    - DR region can be used for lower latency reads
-- Global Database - spans multiple regions and enables DR
-    - One primary region, one DR region
+    - One primary Region
+    - One DR Region
+    - DR Region can be used for lower latency reads
+- Global Database - spans multiple Regions and enables DR
+    - One primary Region, one DR Region
     
 Aurora Serverless
 - No need to choose an instance size
@@ -538,7 +538,7 @@ On Demand (Nov 2018)
 - More expensive than provisioned
 
 Global tables
-- Multi region, replicated, high performance
+- Multi Region, replicated, high performance
     
 Local DynamoDB available for dev
 
@@ -688,7 +688,7 @@ Security Group
     - Can be attached to multiple instances
 - Cannot block a specific IP Address (need NACL for that)
 - firewall-like controls for resources within the VPC
-- Locked down to a region/vpc combination
+- Locked down to a Region/VPC combination
  
 VPC Flow logs - captures the information around traffic within the VPC
 
@@ -711,7 +711,7 @@ VPC Flow logs - captures the information around traffic within the VPC
 
 ### Route53
 - DNS service (connect domain name to ip address / servers)
-- Highly available, can resolve to a different region if needed
+- Highly available, can resolve to a different Region if needed
 - Global resource routing depending on latency or geo location (proximity)
 - Routing policy types
     - Weighted routing - eg 60% traffic to one IP, 40% to the other
