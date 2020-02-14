@@ -700,7 +700,7 @@ VPC Flow logs - captures the information around traffic within the VPC
 - Includes advanced security features
     - AWS Shield for protection agains DDoS attacks
     - AWS WAF
-- Restrict Bucket Access - can only access s3 content via CloudFront
+- Restrict Bucket Access - can only access S3 content via CloudFront
 - Origin Access Identity
     - To connect to S3
 - Signed URLs - use SDK to generate signed urls for CloudFront
