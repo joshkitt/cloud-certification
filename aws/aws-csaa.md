@@ -278,7 +278,7 @@ RAID
 - __To take a snapshot of a RAID array, you have to stop all volume I/O and flush all caches to disk,
 then snapshot each volume__
 
-Can not attach a drive across Azs
+Can not attach a drive across AZs
 - Must snapshot, create volume from snapshot
 
 Disk IO is high => increase volume size (for gp2)
@@ -367,7 +367,7 @@ S3 Glacier
         - Pay a retrieval charge
         - Can retrieve in minutes or hours
         - 5x less expensive than S3 standard
-    - S3 Glacier deep archive- minimum of 180 days
+    - S3 Glacier deep archive - minimum of 180 days
         - 23x less expensive
 - Expedited retrieval - for a cost can get it back in 10 mins
 - Bulk retrieval
@@ -426,13 +426,13 @@ Exam tips:
     - Oracle
     - SQL Server
     - Aurora
-- Multi-AZ - for Disaster Recovery (not scaling)
+- Multi-AZ - high availability, disaster recovery, (not scaling)
     - __Synchronous replication to standby in different Region__
     - Increases availability
     - Automatic failover via single DNS
     - Not used for scaling
-- Read Replicas (for scalability)
-    - Some platforms support read replicas
+- Read Replicas - scalability
+    - MySQL, MariaDB, PostgreSQL, Oracle, Amazon Aurora
     - Up to 5 read replicas
     - Used for scaling reads
     - ASYNC replication within AZ, cross-AZ, and cross-Region
@@ -475,7 +475,7 @@ Exam tips:
     - Up to 15 read replicas
     - Faster replication than RDS
     - Autoscaling replicas
-    - Reader endpoint - connects automatically to replicas
+    - Reader endpoint - connects automatically to replicas (connection load balancing)
     - Load balancing happens at the connection level
     - cross-Region
 - Writer endpoint - single via DNS
@@ -544,7 +544,7 @@ Local DynamoDB available for dev
 
 
 ### ElastiCache
-- In-memory database - microseconds to milliseconds (10x faster)
+- In-memory database - sub-millisecond (microsecond) (10x faster)
 - Types:
     - Memcached
         - Memcached still available but offers fewer features than Redis
@@ -569,12 +569,14 @@ Local DynamoDB available for dev
 - Scalable data warehouse service
 - Petabyte scale
 - Columnar storage
-- Encryped
+- Encrypted
 - Redshift spectrum can handle exabytes
 
 # Application Integration
 
 ### SNS
+Simple Notification Service
+
 https://docs.aws.amazon.com/sns/latest/dg/welcome.html
 
 - Pub / Sub messaging service
@@ -586,7 +588,7 @@ https://docs.aws.amazon.com/sns/latest/dg/welcome.html
 - 10,000,000 subscriptions per topic
 - 100,000 topics limit
 - Integrates with lots of Amazon products
--Protocols
+- Protocols
     - Http
     - Https
     - Email
@@ -595,6 +597,8 @@ https://docs.aws.amazon.com/sns/latest/dg/welcome.html
     - AWS Lambda
 
 ### SQS
+Simple Queue Service
+
 https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html
 
 - Message queue service
