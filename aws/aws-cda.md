@@ -107,6 +107,32 @@ Steps:
   - AWS CloudWatch Event Rules -> publishes to SNS Topic
     - Pull request events
     - Commit events
+    
+### AWS CodeBuild
+- Fully managed build service
+- No servers to manage or provision
+- No build queue
+- Uses Docker to build (Java, Python, etc.)
+  - Can use your own base Docker images
+- Security
+  - Integrates with KMS to encrypt artifacts
+  - Integrates with IAM for build permissions
+- __buildspec.yml__ file at root of code
+  - Define environment variables
+  - SSM Parameter Store
+  - Phases
+    - Install
+    - Pre build
+    - Build
+    - Post build
+  - Artifacts: artifacts to store in S3 (encrypted)
+  - Cache: files and dependencies to cache
+- Logs to S3 or CloudWatch
+- CloudWatch alarms for notifications
+- Can cache build in S3
+- Artifacts are stored in S3
 
 ### AWS CodePipeline
+
+__Stages can have multiple Action Groups__
 
