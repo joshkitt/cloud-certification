@@ -25,3 +25,13 @@ Deployment Modes
   - Longest deployment
   - Quick rollback
   - Good for prod
+
+Blue / Green Deployment
+- Zero downtime
+- Create new environment ("green")
+- Test / validate new environment
+- Direct a percentage of traffic to the new environment - Route 53 weighted policy
+- Swap URLs when done
+- Shut down old environment ("blue")
+
+
