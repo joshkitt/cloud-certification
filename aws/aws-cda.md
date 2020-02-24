@@ -74,3 +74,39 @@ HTTPS:
 - Load certificate onto Load Balancer
 - Configure security group rules
 - Use ALB rule to redirect to HTTPS
+
+## CICD
+Continuous Integration, Continuous Delivery (deployment)
+
+Steps:
+- Code
+- Build
+- Test
+- Deploy
+- Provision
+
+### AWS CodeCommit
+- Version control
+- Private Git repositories
+- No size limits
+- Fully managed
+- Highly available
+- Collaborate with team
+- Code is in a central repository
+- Security
+  - SSH keys
+  - HTTPS
+  - Multi factor authentication (MFA)
+  - AuthZ - IAM policies
+  - Encryption
+    - Repositories are automatically encrypted using KMS
+    - HTTPS or SSH only
+- Notifications
+  - AWS SNS
+  - AWS Lambda
+  - AWS CloudWatch Event Rules -> publishes to SNS Topic
+    - Pull request events
+    - Commit events
+
+### AWS CodePipeline
+
